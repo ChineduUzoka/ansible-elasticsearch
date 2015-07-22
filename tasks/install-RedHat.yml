@@ -1,0 +1,23 @@
+---
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install the distributions default modules
+  template:
+    src: "elasticsearch.repo.j2"
+    dest: "/etc/yum.repos.d/elasticsearch.repo"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Ensure Elasticsearch dependencies are installed
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_item: elasticsearch_pkg_dependencies
+
+# Install Java
+- name: Install dependencies
+  yum: pkg={{elasticsearch_java_package}} state=present
+  when: elasticsearch_install_java
+
